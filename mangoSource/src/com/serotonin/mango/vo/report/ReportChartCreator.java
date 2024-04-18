@@ -147,7 +147,8 @@ public class ReportChartCreator {
             if (ptsc.hasData()) {
                 if (inlinePrefix != null)
                     model.put("chartName", inlinePrefix + pointStat.getChartName());
-                pointStat.setImageData(ImageChartUtils.getChartData(ptsc, POINT_IMAGE_WIDTH, POINT_IMAGE_HEIGHT));
+                pointStat.setImageData(ImageChartUtils.getChartData(ptsc, POINT_IMAGE_WIDTH, POINT_IMAGE_HEIGHT,
+                    pointStat.isScatter(), pointStat.getTitle(), pointStat.getXlabel(), pointStat.getYlabel(), pointStat.getYref()));
             }
         }
 
@@ -283,6 +284,11 @@ public class ReportChartCreator {
         private Color numericTimeSeriesColor;
         private DiscreteTimeSeries discreteTimeSeries;
         private byte[] imageData;
+        private boolean scatter;
+        private String title;
+        private String xlabel;
+        private String ylabel;
+        private double yref;
 
         public PointStatistics(int reportPointId) {
             this.reportPointId = reportPointId;
@@ -421,6 +427,45 @@ public class ReportChartCreator {
         public String getChartName() {
             return "reportPointChart" + reportPointId + ".png";
         }
+
+        public boolean isScatter() {
+            return scatter;
+        }
+    
+        public void setScatter(boolean scatter) {
+            this.scatter = scatter;
+        }
+    
+        public String getTitle() {
+            return title;
+        }
+    
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    
+        public String getXlabel() {
+            return xlabel;
+        }
+        public void setXlabel(String xlabel) {
+            this.xlabel = xlabel;
+        }
+    
+        public String getYlabel() {
+            return ylabel;
+        }
+    
+        public void setYlabel(String ylabel) {
+            this.ylabel = ylabel;
+        }
+    
+        public double getYref() {
+            return yref;
+        }
+    
+        public void setYref(double yref) {
+            this.yref = yref;
+        }
     }
 
     public static class StartsAndRuntimeWrapper {
@@ -492,6 +537,11 @@ public class ReportChartCreator {
             donePoint();
 
             point = new PointStatistics(pointInfo.getReportPointId());
+            point.setScatter(pointInfo.isScatter());
+            point.setTitle(pointInfo.getTitle());
+            point.setXlabel(pointInfo.getXlabel());
+            point.setYlabel(pointInfo.getYlabel());
+            point.setYref(pointInfo.getYref());
             point.setName(pointInfo.getExtendedName());
             point.setDataType(pointInfo.getDataType());
             point.setDataTypeDescription(DataTypes.getDataTypeMessage(pointInfo.getDataType()).getLocalizedMessage(

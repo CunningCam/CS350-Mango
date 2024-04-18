@@ -113,6 +113,8 @@ public class UsersDwr extends BaseDwr {
         else
             user = userDao.getUser(id);
         user.setUsername(username);
+        if (!StringUtils.isEmpty(password))
+            user.setPassword(Common.encrypt(password));
         user.setEmail(email);
         user.setPhone(phone);
         user.setAdmin(admin);
@@ -124,37 +126,6 @@ public class UsersDwr extends BaseDwr {
 
         DwrResponseI18n response = new DwrResponseI18n();
         user.validate(response);
-        
-        // If password has less than 7 characters, reject.
-        if (password.length()<7)
-        	response.addMessage(new LocalizableMessage("users.validate.passwordLength"));
-        // If password has curly brackets reject.
-        if (password.contains("{") || password.contains("}"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordCBrackets"));
-        // if password has parentheses reject
-        if (password.contains("(") || password.contains(")"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordParentheses"));
-        // If password has square brackets, reject
-        if (password.contains("[") || password.contains("]"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordSBrackets"));
-        // If password has chevrons, reject
-        if (password.contains("<") || password.contains(">"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordChevrons"));
-        // If password has a forward slash, reject
-        if (password.contains("/"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordFSlash"));
-        // If password has a quotation mark, reject
-        if (password.contains("\""))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordQuotes"));
-        // If password has a semicolon, reject
-        if (password.contains(";"))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordSemicolon"));
-        // If password has a space, reject
-        if (password.contains(" "))
-        	response.addMessage(new LocalizableMessage("users.validate.passwordSpace"));
-        // If nothing is wrong, encrypt the password and accept it.
-        if (!response.getHasMessages())
-        	user.setPassword(Common.encrypt(password));
 
         // Check if the username is unique.
         User dupUser = userDao.getUser(username);

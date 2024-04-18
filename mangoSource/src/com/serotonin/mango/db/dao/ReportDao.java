@@ -195,18 +195,29 @@ public class ReportDao extends BaseDao {
      * This method should only be called by the ReportWorkItem.
      */
     private static final String REPORT_INSTANCE_POINTS_INSERT = "insert into reportInstancePoints " //
-            + "(reportInstanceId, dataSourceName, pointName, dataType, startValue, textRenderer, colour, consolidatedChart) "
-            + "values (?,?,?,?,?,?,?,?)";
+            + "(reportInstanceId, dataSourceName, pointName, dataType, startValue, textRenderer, colour, consolidatedChart, scatter, title, xlabel, ylabel, yref) "
+            + "values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public static class PointInfo {
         private final DataPointVO point;
         private final String colour;
         private final boolean consolidatedChart;
+        private final boolean scatter;
+        private final String title;
+        private final String xlabel;
+        private final String ylabel;
+        private final double yref;
 
-        public PointInfo(DataPointVO point, String colour, boolean consolidatedChart) {
+        public PointInfo(DataPointVO point, String colour, boolean consolidatedChart, boolean scatter,
+            String title, String xlabel, String ylabel, double yref) {
             this.point = point;
             this.colour = colour;
             this.consolidatedChart = consolidatedChart;
+            this.scatter = scatter;
+            this.title = title;
+            this.xlabel = xlabel;
+            this.ylabel = ylabel;
+            this.yref = yref;
         }
 
         public DataPointVO getPoint() {
@@ -219,6 +230,26 @@ public class ReportDao extends BaseDao {
 
         public boolean isConsolidatedChart() {
             return consolidatedChart;
+        }
+
+        public boolean isScatter() {
+            return scatter;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getXlabel() {
+            return xlabel;
+        }
+
+        public String getYlabel() {
+            return ylabel;
+        }
+
+        public double getYref() {
+            return yref;
         }
     }
 
@@ -272,12 +303,22 @@ public class ReportDao extends BaseDao {
 
             int reportPointId = doInsert(
                     REPORT_INSTANCE_POINTS_INSERT,
-                    new Object[] { instance.getId(), point.getDeviceName(), name, dataType,
-                            DataTypes.valueToString(startValue),
-                            SerializationHelper.writeObject(point.getTextRenderer()), pointInfo.getColour(),
-                            boolToChar(pointInfo.isConsolidatedChart()) }, new int[] { Types.INTEGER, Types.VARCHAR,
-                            Types.VARCHAR, Types.INTEGER, Types.VARCHAR, Types.BLOB, Types.VARCHAR, Types.CHAR });
-
+                    new Object[] {
+                        instance.getId(), point.getDeviceName(),
+                        name, dataType,
+                        DataTypes.valueToString(startValue),SerializationHelper.writeObject(point.getTextRenderer()),
+                        pointInfo.getColour(), boolToChar(pointInfo.isConsolidatedChart()),
+                        boolToChar(pointInfo.isScatter()), pointInfo.getTitle(),
+                        pointInfo.getXlabel(), pointInfo.getYlabel(),
+                        pointInfo.getYref() },
+                        new int[] {
+                        Types.INTEGER, Types.VARCHAR,
+                        Types.VARCHAR, Types.INTEGER,
+                        Types.VARCHAR, Types.BLOB,
+                        Types.VARCHAR, Types.CHAR,
+                        Types.CHAR, Types.VARCHAR,
+                        Types.VARCHAR, Types.VARCHAR,
+                        Types.DOUBLE });
             // Insert the reportInstanceData records
             String insertSQL = "insert into reportInstanceData " + "  select id, " + reportPointId
                     + ", pointValue, ts from pointValues " + "    where dataPointId=? and dataType=? "
@@ -410,7 +451,7 @@ public class ReportDao extends BaseDao {
      * ordered), and sorted by time ascending.
      */
     private static final String REPORT_INSTANCE_POINT_SELECT = "select id, dataSourceName, pointName, dataType, " // 
-            + "startValue, textRenderer, colour, consolidatedChart from reportInstancePoints ";
+            + "startValue, textRenderer, colour, consolidatedChart, scatter, title, xlabel, ylabel, yref from reportInstancePoints ";
     private static final String REPORT_INSTANCE_DATA_SELECT = "select rd.pointValue, rda.textPointValueShort, " //
             + "  rda.textPointValueLong, rd.ts, rda.sourceValue "
             + "from reportInstanceData rd "
@@ -434,6 +475,11 @@ public class ReportDao extends BaseDao {
                                 .getBinaryStream()));
                         rp.setColour(rs.getString(7));
                         rp.setConsolidatedChart(charToBool(rs.getString(8)));
+                        rp.setScatter(charToBool(rs.getString(9)));
+                        rp.setTitle(rs.getString(10));
+                        rp.setXlabel(rs.getString(11));
+                        rp.setYlabel(rs.getString(12));
+                        rp.setYref(rs.getDouble(13));
                         return rp;
                     }
                 });

@@ -145,19 +145,11 @@ public class UserDao extends BaseDao {
             + "  receiveOwnAuditEvents=? " + "where id=?";
 
     void updateUser(User user) {
-    	if (user.getHomeUrl() == null) {
-    		ejt.update(
-                    USER_UPDATE,
-                    new Object[] { user.getUsername(), user.getPassword(), user.getEmail(), user.getPhone(),
-                            boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), "N",
-                            user.getReceiveAlarmEmails(), boolToChar(user.isReceiveOwnAuditEvents()), user.getId() });
-    	} else {
-	        ejt.update(
-	                USER_UPDATE,
-	                new Object[] { user.getUsername(), user.getPassword(), user.getEmail(), user.getPhone(),
-	                        boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), user.getHomeUrl(),
-	                        user.getReceiveAlarmEmails(), boolToChar(user.isReceiveOwnAuditEvents()), user.getId() });
-    	}
+        ejt.update(
+                USER_UPDATE,
+                new Object[] { user.getUsername(), user.getPassword(), user.getEmail(), user.getPhone(),
+                        boolToChar(user.isAdmin()), boolToChar(user.isDisabled()), user.getHomeUrl(),
+                        user.getReceiveAlarmEmails(), boolToChar(user.isReceiveOwnAuditEvents()), user.getId() });
         saveRelationalData(user);
     }
 

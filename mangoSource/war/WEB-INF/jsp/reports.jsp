@@ -75,7 +75,8 @@
         reportPointsArray = new Array();
         for (var i=0; i<report.points.length; i++)
             addToReportPointsArray(report.points[i].pointId, report.points[i].colour,
-                    report.points[i].consolidatedChart);
+                    report.points[i].consolidatedChart, report.points[i].chartType, report.points[i].title, report.points[i].xlabel,
+                    report.points[i].ylabel, report.points[i].yref);
         $set("includeEvents", report.includeEvents);
         $set("includeUserComments", report.includeUserComments);
         $set("dateRangeType", report.dateRangeType);
@@ -124,7 +125,7 @@
         writeReportPointsArray();
     }
     
-    function addToReportPointsArray(pointId, colour, consolidatedChart) {
+    function addToReportPointsArray(pointId, colour, consolidatedChart, chartType, title, xlabel, ylabel, yref) {
         var data = getPointData(pointId);
         if (data) {
             // Missing names imply that the point was deleted, so ignore.
@@ -133,7 +134,12 @@
                 pointName : data.name,
                 pointType : data.dataTypeMessage,
                 colour : !colour ? (!data.chartColour ? "" : data.chartColour) : colour,
-                consolidatedChart : consolidatedChart
+                consolidatedChart : consolidatedChart,
+                chartType : chartType,
+                title : title,
+                xlabel : xlabel,
+                ylabel : ylabel,
+                yref : yref
             };
         }
     }
@@ -167,6 +173,27 @@
                         return "<input type='checkbox'"+ (data.consolidatedChart ? " checked='checked'" : "") +
                                 " onclick='updatePointConsolidatedChart("+ data.pointId +", this.checked)'/>";
                     },
+                    function(data) {
+                    	    return "<input type='radio' name='" + data.pointId + "' id='line' value='Line'>Line" +
+                                "<input type='radio' name='" + data.pointId + "' id='scatter' value='Scatter'>Scatter<" +
+                                  data.chartType + "onclick='updatePointChartType("+ data.pointId +", this.chartType)'/>";
+                    },
+                    function(data) {
+                    	    return "<input type='text' value='TITLE' " +
+                    	            "onblur='updatePointTitle("+ data.pointId +", this.title)'/>";
+                    },
+                    function(data) {
+                    	    return "<input type='text' value='XLABEL' "+
+                    	            "onblur='updatePointXLabel("+ data.pointID +", this.xlabel)'/>";
+                    },
+                    function(data) {
+                    	    return "<input type='text' value='YLABEL' "+
+                    	            "onblur='updatePointYLabel("+ data.pointId +", this.ylabel)'/>";
+                    },
+                    function(data) {
+                    	    return "<input type='text' value='YREF' "+
+                    	            "onblur='updatePointYRef("+ data.pointId +", this.yref)'/>";
+                    },
                     function(data) { 
                             return "<img src='images/bullet_delete.png' class='ptr' "+
                                     "onclick='removeFromReportPointsArray("+ data.pointId +")'/>";
@@ -199,6 +226,36 @@
         var item = getElement(reportPointsArray, pointId, "pointId");
         if (item)
             item["consolidatedChart"] = consolidatedChart;
+    }
+
+    function updatePointChartType(pointID, chartType) {
+      var item = getElement(reportPointsArray, pointId, "pointId");
+      if (item)
+        item["chartType"] = chartType;
+    }
+
+    function updatePointTitle(pointId, title) {
+      var item = getElement(reportPointsArray, pointId, "pointId");
+      if (item)
+        item["title"] = title;
+    }
+    
+    function updatePointXLabel(pointId, xlabel) {
+      var item = getElement(reportPointsArray, pointId, "pointId");
+      if (item)
+        item["xlabel"] = xlabel;
+    }
+
+    function updatePointYLabel(pointId, ylabel) {
+      var item = getElement(reportPointsArray, pointId, "pointId");
+      if (item)
+        item["ylabel"] = ylabel;
+    }
+
+    function updatePointYRef(pointId, yref) {
+      var item = getElement(reportPointsArray, pointId, "pointId");
+      if (item)
+        item["yref"] = yref;
     }
     
     function updatePointsList() {
@@ -396,8 +453,16 @@
     function getReportPointIdsArray() {
         var points = new Array();
         for (var i=0; i<reportPointsArray.length; i++)
-            points[points.length] = { pointId: reportPointsArray[i].pointId, colour: reportPointsArray[i].colour,
-        		    consolidatedChart: reportPointsArray[i].consolidatedChart };
+            points[points.length] = { 
+              pointId: reportPointsArray[i].pointId, 
+              colour: reportPointsArray[i].colour,
+        		  consolidatedChart: reportPointsArray[i].consolidatedChart, 
+              chartType: reportPointsArray[i].chartType, 
+              title: reportPointsArray[i].title, 
+              xlabel: reportPointsArray[i].xlabel, 
+              ylabel: reportPointsArray[i].ylabel, 
+              yref: reportPointsArray[i].yref
+            };
         return points;
     }
     
@@ -592,6 +657,11 @@
                       <td><fmt:message key="reports.dataType"/></td>
                       <td><fmt:message key="reports.colour"/></td>
                       <td><fmt:message key="reports.consolidatedChart"/></td>
+                      <td><fmt:message key="reports.chartType"/></td>
+                      <td><fmt:message key="reports.title"/></td>
+                      <td><fmt:message key="reports.xlabel"/></td>
+                      <td><fmt:message key="reports.ylabel"/></td>
+                      <td><fmt:message key="reports.yref"/></td>
                       <td></td>
                     </tr>
                   </tbody>
