@@ -444,7 +444,7 @@ public class ReportDao extends BaseDao {
 
             rdv.setReportPointId(point.getReportPointId());
             final int dataType = point.getDataType();
-            ejt.query(REPORT_INSTANCE_DATA_SELECT + "where rd.reportInstancePointId=? order by rd.ts",
+            ejt.query(REPORT_INSTANCE_DATA_SELECT + "where rd.reportInstancePointId=? ", // removed 'order by rd.ts' to not order by timestamp
                     new Object[] { point.getReportPointId() }, new RowCallbackHandler() {
                         public void processRow(ResultSet rs) throws SQLException {
                             switch (dataType) {

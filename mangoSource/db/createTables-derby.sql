@@ -408,7 +408,10 @@ create table reportInstanceData (
   pointValue double,
   ts bigint not null
 );
-alter table reportInstanceData add constraint reportInstanceDataPk primary key (pointValueId, reportInstancePointId);
+--
+-- additions made here
+alter table app.reportInstanceData drop constraint reportInstanceDataPk -- removes the limitations on this data
+alter table app.reportInstanceData add constraint reportInstanceDataPk primary key (reportInstancePointId, pointValueId); -- swapped these params to prioritize reportInstancePointId
 alter table reportInstanceData add constraint reportInstanceDataFk1 foreign key (reportInstancePointId) 
   references reportInstancePoints(id) on delete cascade;
 
